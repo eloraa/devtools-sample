@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <script>
+      if (window.top !== window.self) {
+        (function () {
+          window.__originalMethods = {
+            log: console.log,
+            error: console.error,
+            warn: console.warn,
+            info: console.info,
+            debug: console.debug,
+            trace: console.trace,
+            onerror: window.onerror,
+            onunhandledrejection: window.onunhandledrejection,
+          };
+
+          console.log = function (...args) {
+            window.parent.postMessage({ type: 'log', data: args, stack: captureStackTrace() }, '*');
+            window.__originalMethods.log(...args);
+          };
+
+          console.error = function (...args) {
+            window.parent.postMessage({ type: 'error', data: args, stack: captureStackTrace() }, '*');
+            window.__originalMethods.error(...args);
+          };
+
+          console.warn = function (...args) {
+            window.parent.postMessage({ type: 'warning', data: args, stack: captureStackTrace() }, '*');
+            window.__originalMethods.warn(...args);
+          };
+
+          console.info = function (...args) {
+            window.parent.postMessage({ type: 'info', data: args, stack: captureStackTrace() }, '*');
+            window.__originalMethods.info(...args);
+          };
+
+          console.debug = function (...args) {
+            window.parent.postMessage({ type: 'debug', data: args, stack: captureStackTrace() }, '*');
+            window.__originalMethods.debug(...args);
+          };
+
+          console.trace = function (...args) {
+            window.parent.postMessage({ type: 'trace', data: args, stack: captureStackTrace() }, '*');
+            window.__originalMethods.trace(...args);
+          };
+
+          window.onerror = function (message, source, lineno, colno, error) {
+            window.parent.postMessage({ type: 'unhandledError', data: [message, error || 'Unknown error'], stack: captureStackTrace() }, '*');
+            return false;
+          };
+
+          window.onunhandledrejection = function (event) {
+            window.parent.postMessage({ type: 'unhandledRejection', data: [event.reason || 'Unhandled promise rejection'], stack: captureStackTrace() }, '*');
+          };
+
+          function captureStackTrace() {
+            const error = new Error();
+            if (error.stack) {
+              const stackLines = error.stack.split('\n').slice(2);
+              const callFrames = stackLines.map(line => {
+                const match = line.match(/at\s+(.*?)\s+\((.*?):(\d+):(\d+)\)/);
+                if (match) {
+                  const [_, functionName, url, lineNumber, columnNumber] = match;
+                  return {
+                    functionName,
+                    url,
+                    lineNumber: parseInt(lineNumber, 10),
+                    columnNumber: parseInt(columnNumber, 10),
+                  };
+                }
+                return {
+                  functionName: line.trim(),
+                  lineNumber: -1,
+                };
+              });
+              return { callFrames };
+            }
+            return { callFrames: [] };
+          }
+        })();
+      }
+
+      document.currentScript.remove();
+    </script>
+    <script src="https://unpkg.com/chrome-devtools-web@0.0.2/dist/index.js"></script>
+    <meta charset="UTF-8" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Devtools Sample | Elora</title>
+  </head>
+  <body>
+    <div class="overlay">
+      <svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none">
+        <path class="overlay__path" vector-effect="non-scaling-stroke" d="M 0 100 V 100 Q 50 100 100 100 V 100 z" />
+      </svg>
+    </div>
+    <header class="container">
+      <span>v1.0.0</span>
+      <h1>Elora</h1>
+      <a href="https://github.com/eloraa" target="_blank"><span>Github</span></a>
+    </header>
+    <main>
+      <figure>
+        <img class="hello" src="/0.png" alt="Hello" />
+      </figure>
+      <h1>Want to debug your app?</h1>
+      <p>Include this in your website.</p>
+      <div class="code">
+        <input value='&lt;script src="https://unpkg.com/chrome-devtools-web@0.0.2/dist/index.js"&gt;&lt;/script&gt;' readonly />
+        <button>
+          <span class="copy-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="13" viewBox="0 0 12 13" fill="none">
+              <path
+                d="M11.25 5.2168V12.5H3.75V10.25H0.75V0.5H5.7832L8.0332 2.75H8.7832L11.25 5.2168ZM9 5H9.9668L9 4.0332V5ZM3.75 2.75H6.9668L5.4668 1.25H1.5V9.5H3.75V2.75ZM10.5 5.75H8.25V3.5H4.5V11.75H10.5V5.75Z"
+                fill="currentColor"
+              />
+            </svg>
+          </span>
+          <span class="check-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 6 9 17l-5-5" />
+            </svg>
+          </span>
+        </button>
+      </div>
+
+      <div class="info">
+        <p>
+          <span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 6v12" />
+              <path d="M17.196 9 6.804 15" />
+              <path d="m6.804 9 10.392 6" />
+            </svg>
+          </span>
+          Click on the
+          <span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="4 17 10 11 4 5" />
+              <line x1="12" x2="20" y1="19" y2="19" />
+            </svg>
+          </span>
+          to <button class="open-console">open the console</button>.
+        </p>
+
+        <p>
+          Click on the
+          <span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10" />
+              <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20" />
+              <path d="M2 12h20" />
+            </svg>
+          </span>
+          to <button class="open-proxy">turn on the proxy mode</button>. Note: Your site may not work properly.
+        </p>
+        <p>
+          <span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" />
+              <path d="M14 2v4a2 2 0 0 0 2 2h4" />
+            </svg> </span
+          >Read <button class="open-docs">documentation</button>.
+        </p>
+      </div>
+      <div class="colors"></div>
+
+      <div class="tests">
+        <h1>Test...</h1>
+        <div>
+          <button class="log">Log</button>
+          <button class="error">Error</button>
+          <button class="warn">Warn</button>
+          <button class="unhandled-error">Unhandled Error</button>
+          <button class="unhandled-rejection">Unhandled Rejection</button>
+          <button class="fetch">Fetch</button>
+          <button class="cors">CORS Error</button>
+          <button class="cookie">Cookie</button>
+          <button class="storage">Storage</button>
+        </div>
+      </div>
+    </main>
+    <footer class="container">
+      <div>
+        <h1>Classic</h1>
+        <p>Cool huh?</p>
+      </div>
+      <p>&copy;2024</p>
+    </footer>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
